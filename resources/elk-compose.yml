@@ -1,0 +1,29 @@
+version: '3'
+services:
+  elk:
+    image: sebp/elk:8.7.1
+    container_name: elk_compose
+    ports:
+      - 5601:5601     # Kibana Web port
+      - 9200:9200     # Elasticsearch Web port
+      - 9300:9300     # Elasticsearch transport port
+      - 5044:5044     # Logstash Web port
+      - 9600:9600     # Logstash monitoring Web port
+    restart: always
+    environment:
+      - "TZ=Asia/Shanghai"              # 设置区市
+      - "ES_HEAP_SIZE=3g"               # 设置 Elasticsearch 堆内存的大小
+      # - "LS_HEAP_SIZE=1g"               # 设置 Logstash 堆内存的大小
+      - "MAX_OPEN_FILES=65535"          # 设置最大的文件打开个数
+      - "ELASTICSEARCH_START=1"         # 设置为非1都不会启动
+      - "LOGSTASH_START=0"              # 设置为非1都不会启动
+      - "KIBANA_START=0"                # 设置为非1都不会启动
+    volumes:
+      # Logstash 配置文件
+      # - /home/wanmaoyuan/code-space/go-code/src/demo/resources/logstash-input.conf:/etc/logstash/conf.d/02-beats-input.conf
+      # - /home/wanmaoyuan/code-space/go-code/src/demo/resources/logstash-output.conf:/etc/logstash/conf.d/30-output.conf
+      # Elasticsearch 配置文件
+      # - /home/wanmaoyuan/code-space/go-code/src/demo/resources/elasticsearch.yml:/etc/elasticsearch/elasticsearch.yml
+      # - /home/wanmaoyuan/code-space/go-code/src/demo/resources/certs:/etc/elasticsearch/config/certs
+      # 读取日志文件
+      - /home/wanmaoyuan/code-space/go-code/src/demo/logs:/opt/logs
