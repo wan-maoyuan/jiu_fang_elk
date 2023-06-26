@@ -107,8 +107,12 @@ EOF
 
   ################## wanmaoyuan ##################################
   mkdir -p /etc/elasticsearch/config/certs
+  mkdir -p /etc/logstash/certs
+
   /opt/elasticsearch/bin/elasticsearch-certutil ca --out /etc/elasticsearch/config/certs/elastic-stack-ca.p12 --pass '123456'
   /opt/elasticsearch/bin/elasticsearch-certutil cert --ca /etc/elasticsearch/config/certs/elastic-stack-ca.p12 --out /etc/elasticsearch/config/certs/elastic-certificates.p12 --ca-pass '123456' --pass '123456'
+  
+  # openssl pkcs12 -in /etc/elasticsearch/config/certs/elastic-certificates.p12 -clcerts -nokeys -chain -out /etc/logstash/certs/ca.pem -password pass:'123456'
   
   ## Private Key 私钥
   openssl pkcs12 -in /etc/elasticsearch/config/certs/elastic-certificates.p12 -nocerts -nodes -password pass:'123456' > /etc/elasticsearch/config/certs/client.key
@@ -117,14 +121,17 @@ EOF
   ## CA Certificate 签署公共证书的CA
   openssl pkcs12 -in /etc/elasticsearch/config/certs/elastic-certificates.p12 -cacerts -nokeys -chain -password pass:'123456' > /etc/elasticsearch/config/certs/client-ca.cer
 
-  chmod -R 755 /etc/elasticsearch/config
+  chown -R elasticsearch.elasticsearch /etc/elasticsearch/config
+  cp /etc/elasticsearch/config/certs/elastic-certificates.p12 /etc/logstash/certs/elastic-certificates.crt
+  chown -R logstash.logstash /etc/logstash/certs
   ################################################################
 
   service elasticsearch start
 
   ################## wanmaoyuan ##################################
-
   echo -e "y\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123\nelk123" | /opt/elasticsearch/bin/elasticsearch-setup-passwords interactive
+  
+  echo -e "xpack.security.http.ssl.enabled: true\nxpack.security.http.ssl.keystore.path: /etc/elasticsearch/config/certs/elastic-certificates.p12\nxpack.security.http.ssl.truststore.path: /etc/elasticsearch/config/certs/elastic-certificates.p12\nxpack.security.http.ssl.keystore.password: 123456\nxpack.security.http.ssl.truststore.password: 123456 " >> /etc/elasticsearch/elasticsearch.yml 
   ################################################################
 
   # wait for Elasticsearch to start up before either starting Kibana (if enabled)
@@ -179,9 +186,17 @@ EOF
     exit 1
   fi
   # OUTPUT_LOGFILES+="/var/log/elasticsearch/${CLUSTER_NAME}.log "
-  OUTPUT_LOGFILES+="/var/log/elasticsearch/elk.log "
+  OUTPUT_LOGFILES+="/var/log/elasticsearch/elasticsearch.log "
 fi
 
+################## wanmaoyuan ##################################
+service elasticsearch restart
+rm /etc/elasticsearch/elasticsearch.keystore
+echo -e "y\n123456" | /opt/elasticsearch/bin/elasticsearch-keystore add xpack.security.http.ssl.keystore.secure_password
+echo -e "123456" | /opt/elasticsearch/bin/elasticsearch-keystore add xpack.security.transport.ssl.keystore.secure_password
+echo -e "123456" | /opt/elasticsearch/bin/elasticsearch-keystore add xpack.security.transport.ssl.truststore.secure_password
+chown elasticsearch.elasticsearch /etc/elasticsearch/elasticsearch.keystore
+################################################################
 
 ### Logstash
 

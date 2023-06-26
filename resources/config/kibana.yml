@@ -162,7 +162,7 @@ server.host: "0.0.0.0"
 server.ssl.enabled: true
 server.ssl.certificate: /etc/elasticsearch/config/certs/client.cer 
 server.ssl.key: /etc/elasticsearch/config/certs/client.key
-elasticsearch.hosts: ["http://localhost:9200"]
+elasticsearch.hosts: ["https://localhost:9200"]
 elasticsearch.username: "kibana"
 elasticsearch.password: "elk123"
 elasticsearch.ssl.certificateAuthorities: [ "/etc/elasticsearch/config/certs/client-ca.cer" ]

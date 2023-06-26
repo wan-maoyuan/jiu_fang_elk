@@ -16,12 +16,13 @@ services:
       - "LS_HEAP_SIZE=1g"               # 设置 Logstash 堆内存的大小
       - "MAX_OPEN_FILES=65535"          # 设置最大的文件打开个数
       - "ELASTICSEARCH_START=1"         # 设置为非1都不会启动
-      - "LOGSTASH_START=0"              # 设置为非1都不会启动
+      - "LOGSTASH_START=1"              # 设置为非1都不会启动
       - "KIBANA_START=1"                # 设置为非1都不会启动
     volumes:
       # Logstash 配置文件
       - /home/wanmaoyuan/code-space/go-code/src/jiu_fang_elk/resources/config/logstash-input.conf:/etc/logstash/conf.d/02-beats-input.conf
       - /home/wanmaoyuan/code-space/go-code/src/jiu_fang_elk/resources/config/logstash-output.conf:/etc/logstash/conf.d/30-output.conf
+      # - /home/wanmaoyuan/code-space/go-code/src/jiu_fang_elk/resources/config/logstash.yml:/opt/logstash/config/logstash.yml
       # Elasticsearch 配置文件
       - /home/wanmaoyuan/code-space/go-code/src/jiu_fang_elk/resources/config/elasticsearch.yml:/etc/elasticsearch/elasticsearch.yml
       # Kibana 配置文件
